@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Debt Manager</title>
+
+<style>
+body{
+    font-family: Arial,sans-serif;
+    max-width:800px;
+    margin:auto;
+    padding:20px;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+}
+
+button{
+    padding:10px;
+    cursor:pointer;
+}
+
+.card{
+    border:1px solid #ddd;
+    padding:15px;
+    margin-top:10px;
+    border-radius:10px;
+}
+</style>
+</head>
+<body>
+
+<h2>ระบบจัดการหนี้</h2>
+
+<input id="creditor" placeholder="เจ้าหนี้">
+<input id="item" placeholder="ผ่อนอะไร">
+<input id="loan" type="number" placeholder="ยอดกู้">
+<input id="remain" type="number" placeholder="ยอดคงเหลือ">
+<input id="monthly" type="number" placeholder="จ่ายต่อเดือน">
+
+<button onclick="addDebt()">เพิ่มหนี้</button>
+
+<h3>รายการหนี้</h3>
+
+<div id="list"></div>
+
+<h3 id="summary"></h3>
+
+<script>
+
+let debts = JSON.parse(localStorage.getItem('debts')) || [];
+
+function addDebt(){
+
+    const debt = {
+        creditor: creditor.value,
+        item: item.value,
+        loan: Number(loan.value),
+        remain: Number(remain.value),
+        monthly: Number(monthly.value)
+    };
+
+    debts.push(debt);
+
+    localStorage.setItem(
+        'debts',
+        JSON.stringify(debts)
+    );
+
+    render();
+}
+
+function render(){
+
+    let html = '';
+
+    let totalRemain = 0;
+
+    debts.forEach((d,index)=>{
+
+        const months =
+            Math.ceil(d.remain / d.monthly);
+
+        totalRemain += d.remain;
+
+        html += `
+        <div class="card">
+            <b>${d.item}</b><br>
+            เจ้าหนี้: ${d.creditor}<br>
+            กู้มา: ${d.loan.toLocaleString()} บาท<br>
+            เหลือ: ${d.remain.toLocaleString()} บาท<br>
+            จ่ายเดือนละ: ${d.monthly.toLocaleString()} บาท<br>
+            คาดว่าหมดใน ${months} เดือน
+        </div>
+        `;
+    });
+
+    list.innerHTML = html;
+
+    summary.innerHTML =
+        `หนี้รวมทั้งหมด ${totalRemain.toLocaleString()} บาท`;
+}
+
+render();
+
+</script>
+
+</body>
+</html>
